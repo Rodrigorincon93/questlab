@@ -1,12 +1,26 @@
 <script>
   import { Plus, Trash2, Check } from '@lucide/svelte'
   import EditorFrame from './EditorFrame.svelte'
-  import { saveActivity } from '../store.svelte.js'
-  import { blankQuiz, exampleQuiz } from '../samples.js'
+  import { db, saveActivity } from '../store.svelte.js'
+  import { blanks, examples } from '../samples.js'
+  import { byType } from '../catalog.js'
 
-  let { activity, onclose, onsaved } = $props()
+  let { type = 'quiz', activity, onclose, onsaved } = $props()
+  const cfg = byType[type]
+  const isBoard = type === 'board'
   const isNew = !activity
-  let draft = $state(activity ? structuredClone($state.snapshot(activity)) : blankQuiz())
+  let draft = $state(activity ? structuredClone($state.snapshot(activity)) : blanks[type]())
+  let importFrom = $state('')
+  const sources = $derived(db.activities.filter((a) => (a.type === 'quiz' || a.type === 'board') && a.id !== draft.id))
+
+  function importQuestions() {
+    const src = sources.find((a) => a.id === importFrom)
+    if (!src) return
+    const qs = structuredClone($state.snapshot(src.questions))
+    const empty = draft.questions.length === 1 && !draft.questions[0].text.trim()
+    draft.questions = empty ? qs : [...draft.questions, ...qs]
+    importFrom = ''
+  }
   let errors = $state([])
 
   const letters = ['A', 'B', 'C', 'D']
@@ -19,6 +33,11 @@
     const e = []
     if (!draft.title.trim()) e.push('Ponle un título a la actividad.')
     if (draft.questions.length === 0) e.push('Agrega al menos una pregunta.')
+    if (isBoard) {
+      const teams = String(draft.teams).split(',').map((x) => x.trim()).filter(Boolean)
+      if (teams.length < 2 || teams.length > 4) e.push('Escribe entre 2 y 4 equipos, separados por comas.')
+      if (draft.questions.length < 6) e.push('Para la carrera conviene tener al menos 6 preguntas.')
+    }
     draft.questions.forEach((q, i) => {
       if (!q.text.trim()) e.push(`La pregunta ${i + 1} no tiene enunciado.`)
       if (q.options.some((o) => !o.trim())) e.push(`La pregunta ${i + 1} tiene opciones vacías.`)
@@ -37,7 +56,7 @@
   }
 </script>
 
-<EditorFrame kind="Pregunta rápida" tone="coral" {isNew} {errors} {onclose} onsave={save} onexample={() => { draft = exampleQuiz(); errors = [] }}>
+<EditorFrame kind={cfg.name} tone={cfg.tone} {isNew} {errors} {onclose} onsave={save} onexample={() => { draft = examples[type](); errors = [] }}>
   <div class="space-y-4 rounded-2xl border border-ink/10 bg-white p-6">
     <label class="block">
       <span class="text-sm font-semibold">Título</span>
@@ -47,15 +66,39 @@
       <span class="text-sm font-semibold">Descripción <span class="font-normal text-slateink">(opcional)</span></span>
       <input bind:value={draft.description} placeholder="Tema, nivel u objetivo" class="mt-1.5 w-full rounded-xl border border-ink/15 px-4 py-2.5 outline-none focus:border-coral focus:ring-4 focus:ring-coral/15" />
     </label>
-    <label class="flex items-center gap-3">
-      <span class="text-sm font-semibold">Tiempo por pregunta</span>
-      <select bind:value={draft.timeLimit} class="rounded-xl border border-ink/15 bg-white px-3 py-2 text-sm">
-        {#each [10, 15, 20, 30, 45, 60] as s}<option value={s}>{s} segundos</option>{/each}
-      </select>
-    </label>
+    {#if isBoard}
+      <label class="block">
+        <span class="text-sm font-semibold">Equipos <span class="font-normal text-slateink">(2 a 4, separados por comas)</span></span>
+        <input bind:value={draft.teams} placeholder="Equipo Rojo, Equipo Azul" class="mt-1.5 w-full rounded-xl border border-ink/15 px-4 py-2.5 outline-none focus:border-indigo focus:ring-4 focus:ring-indigo/15" />
+      </label>
+      <label class="flex items-center gap-3">
+        <span class="text-sm font-semibold">Largo del tablero</span>
+        <select bind:value={draft.boardLength} class="rounded-xl border border-ink/15 bg-white px-3 py-2 text-sm">
+          {#each [[18, '18 casillas · corta'], [24, '24 casillas · normal'], [32, '32 casillas · larga']] as [v, l]}<option value={v}>{l}</option>{/each}
+        </select>
+      </label>
+    {:else}
+      <label class="flex items-center gap-3">
+        <span class="text-sm font-semibold">Tiempo por pregunta</span>
+        <select bind:value={draft.timeLimit} class="rounded-xl border border-ink/15 bg-white px-3 py-2 text-sm">
+          {#each [10, 15, 20, 30, 45, 60] as s}<option value={s}>{s} segundos</option>{/each}
+        </select>
+      </label>
+    {/if}
   </div>
 
-  <h2 class="mb-3 mt-10 font-display text-xl font-bold">Preguntas <span class="text-slateink/60">({draft.questions.length})</span></h2>
+  <div class="mb-3 mt-10 flex flex-wrap items-end justify-between gap-3">
+    <h2 class="font-display text-xl font-bold">Preguntas <span class="text-slateink/60">({draft.questions.length})</span></h2>
+    {#if sources.length}
+      <div class="flex items-center gap-2 text-sm">
+        <select bind:value={importFrom} class="max-w-56 rounded-xl border border-ink/15 bg-white px-3 py-2">
+          <option value="">Importar preguntas de…</option>
+          {#each sources as s (s.id)}<option value={s.id}>{s.title}</option>{/each}
+        </select>
+        <button class="rounded-xl bg-ink/6 px-3 py-2 font-semibold hover:bg-ink/10 disabled:opacity-40" disabled={!importFrom} onclick={importQuestions}>Importar</button>
+      </div>
+    {/if}
+  </div>
   <div class="space-y-4">
     {#each draft.questions as q, qi (q)}
       <div class="rounded-2xl border border-ink/10 bg-white p-5">

@@ -10,6 +10,9 @@
   --color-sun: #e9a522;
   --color-plum: #6c4bd1;
   --color-sky: #2a72d6;
+  --color-rose: #d0336a;
+  --color-leaf: #3f8f2f;
+  --color-indigo: #3d4cc9;
   --color-slateink: #4a4860;
 }
 
@@ -20,3 +23,10 @@ body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 .shake { animation: shake .4s ease-in-out; }
 @keyframes pop { 0%{transform:scale(.96);opacity:0} 100%{transform:scale(1);opacity:1} }
 .pop { animation: pop .25s ease-out both; }
+
+@keyframes flipin { from { transform: rotateY(90deg); } to { transform: rotateY(0); } }
+.flipin { animation: flipin .22s ease-out both; }
+@keyframes rise { 0%{transform:translateY(8px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+.rise { animation: rise .3s ease-out both; }
+@keyframes roll { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+.rolling { animation: roll .25s linear infinite; }

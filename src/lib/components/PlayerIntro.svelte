@@ -2,13 +2,13 @@
   import { Play } from '@lucide/svelte'
   import { tones, byType, itemLabel } from '../catalog.js'
 
-  let { activity, name = $bindable(''), onstart, rules } = $props()
+  let { activity, name = $bindable(''), onstart, rules, children, needsName = true, startLabel = 'Empezar' } = $props()
   const c = $derived(byType[activity.type])
   const t = $derived(tones[c.tone])
 
   function submit(e) {
     e.preventDefault()
-    if (name.trim()) onstart()
+    if (!needsName || name.trim()) onstart()
   }
 </script>
 
@@ -20,12 +20,15 @@
   <ul class="mt-5 space-y-1.5 text-sm text-slateink">
     {#each rules as r}<li class="flex gap-2"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full {t.dot}"></span>{r}</li>{/each}
   </ul>
+  {#if children}{@render children()}{/if}
+  {#if needsName}
   <label class="mt-6 block">
     <span class="text-sm font-semibold">Tu nombre</span>
     <!-- svelte-ignore a11y_autofocus -->
     <input bind:value={name} autofocus maxlength="40" placeholder="Escribe tu nombre" class="mt-1.5 w-full rounded-xl border border-ink/15 px-4 py-3 text-lg outline-none focus:ring-4 {t.ring}" />
   </label>
-  <button type="submit" disabled={!name.trim()} class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-semibold transition disabled:opacity-40 {t.btn}">
-    <Play size={17} fill="currentColor" /> Empezar
+  {/if}
+  <button type="submit" disabled={needsName && !name.trim()} class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-semibold transition disabled:opacity-40 {t.btn}">
+    <Play size={17} fill="currentColor" /> {startLabel}
   </button>
 </form>

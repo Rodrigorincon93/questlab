@@ -5,9 +5,31 @@
   import ProgressTab from './lib/components/ProgressTab.svelte'
   import QuizEditor from './lib/components/QuizEditor.svelte'
   import MatchEditor from './lib/components/MatchEditor.svelte'
+  import ItemsEditor from './lib/components/ItemsEditor.svelte'
   import QuizPlayer from './lib/components/QuizPlayer.svelte'
   import MatchPlayer from './lib/components/MatchPlayer.svelte'
+  import FlashPlayer from './lib/components/FlashPlayer.svelte'
+  import LettersPlayer from './lib/components/LettersPlayer.svelte'
+  import OrderPlayer from './lib/components/OrderPlayer.svelte'
+  import FillPlayer from './lib/components/FillPlayer.svelte'
+  import SearchPlayer from './lib/components/SearchPlayer.svelte'
+  import EscapePlayer from './lib/components/EscapePlayer.svelte'
+  import BoardPlayer from './lib/components/BoardPlayer.svelte'
   import { db } from './lib/store.svelte.js'
+  import { byType } from './lib/catalog.js'
+
+  const players = {
+    quiz: QuizPlayer,
+    match: MatchPlayer,
+    flash: FlashPlayer,
+    letters: LettersPlayer,
+    order: OrderPlayer,
+    fill: FillPlayer,
+    search: SearchPlayer,
+    escape: EscapePlayer,
+    board: BoardPlayer,
+  }
+  const editors = { quiz: QuizEditor, match: MatchEditor, items: ItemsEditor }
 
   const views = [
     { id: 'crear', label: 'Crear actividad' },
@@ -55,21 +77,22 @@
 
   function onExitPlayer() {
     playing = null
+    scrollTo(0, 0)
   }
+
+  $effect(() => {
+    if (playing || editing) scrollTo(0, 0)
+  })
 </script>
 
 {#if playing}
-  {#if playing.type === 'quiz'}
-    <QuizPlayer activity={playing} onexit={onExitPlayer} />
-  {:else}
-    <MatchPlayer activity={playing} onexit={onExitPlayer} />
-  {/if}
+  {@const Player = players[playing.type]}
+  {#key playing}
+    <Player activity={playing} onexit={onExitPlayer} />
+  {/key}
 {:else if editing}
-  {#if editing.type === 'quiz'}
-    <QuizEditor activity={editing.activity} onclose={() => (editing = null)} onsaved={onSaved} />
-  {:else}
-    <MatchEditor activity={editing.activity} onclose={() => (editing = null)} onsaved={onSaved} />
-  {/if}
+  {@const Editor = editors[byType[editing.type].editor]}
+  <Editor type={editing.type} activity={editing.activity} onclose={() => (editing = null)} onsaved={onSaved} />
 {:else}
   <div class="min-h-screen">
     <Header />

@@ -1,4 +1,4 @@
-import { sampleActivities } from './samples.js'
+import { sampleActivity, sampleIds } from './samples.js'
 
 const KEY = 'questlab:v1'
 
@@ -19,7 +19,24 @@ function load() {
   }
 }
 
-export const db = $state(load() ?? { activities: sampleActivities(), results: [] })
+function init() {
+  const data = load() ?? { activities: [], results: [] }
+  // Las muestras ya sembradas no se vuelven a crear si el docente las borró.
+  const seeded = new Set(data.seeded ?? data.activities.filter((a) => String(a.id).startsWith('sample-')).map((a) => a.id))
+  const toAdd = []
+  for (const [type, id] of Object.entries(sampleIds)) {
+    if (!seeded.has(id)) {
+      toAdd.push(sampleActivity(type))
+      seeded.add(id)
+    }
+  }
+  data.activities = [...data.activities, ...toAdd]
+  data.seeded = [...seeded]
+  return data
+}
+
+export const db = $state(init())
+persist()
 
 function persist() {
   try {

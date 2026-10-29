@@ -2,11 +2,11 @@
   import { Plus, Trash2, ArrowRight } from '@lucide/svelte'
   import EditorFrame from './EditorFrame.svelte'
   import { saveActivity } from '../store.svelte.js'
-  import { blankMatch, exampleMatch } from '../samples.js'
+  import { blanks, examples } from '../samples.js'
 
   let { activity, onclose, onsaved } = $props()
   const isNew = !activity
-  let draft = $state(activity ? structuredClone($state.snapshot(activity)) : blankMatch())
+  let draft = $state(activity ? structuredClone($state.snapshot(activity)) : blanks.match())
   let errors = $state([])
 
   function validate() {
@@ -35,7 +35,7 @@
   }
 </script>
 
-<EditorFrame kind="Relaciona" tone="teal" {isNew} {errors} {onclose} onsave={save} onexample={() => { draft = exampleMatch(); errors = [] }}>
+<EditorFrame kind="Relaciona" tone="teal" {isNew} {errors} {onclose} onsave={save} onexample={() => { draft = examples.match(); errors = [] }}>
   <div class="space-y-4 rounded-2xl border border-ink/10 bg-white p-6">
     <label class="block">
       <span class="text-sm font-semibold">Título</span>
