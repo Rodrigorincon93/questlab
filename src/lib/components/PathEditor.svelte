@@ -1,7 +1,7 @@
 <script>
   import { ArrowUp, ArrowDown, Trash2, Plus } from '@lucide/svelte'
   import EditorFrame from './EditorFrame.svelte'
-  import { db, saveActivity } from '../store.svelte.js'
+  import { session, saveActivity, allActivities } from '../store.svelte.js'
   import { blanks, examples } from '../samples.js'
   import { byType, tones, itemLabel } from '../catalog.js'
 
@@ -11,8 +11,8 @@
   let errors = $state([])
   let toAdd = $state('')
 
-  const available = $derived(db.activities.filter((a) => a.type !== 'path' && a.type !== 'board' && a.type !== 'wheel' && a.type !== 'bingo'))
-  const byId = $derived(Object.fromEntries(db.activities.map((a) => [a.id, a])))
+  const available = $derived(allActivities().filter((a) => a.type !== 'path' && a.type !== 'board' && a.type !== 'wheel' && a.type !== 'bingo'))
+  const byId = $derived(Object.fromEntries(allActivities().map((a) => [a.id, a])))
 
   function add() {
     if (!toAdd) return
@@ -63,7 +63,7 @@
           <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg {tones[c.tone].tile}"><c.icon size={18} /></span>
           <div class="min-w-0 flex-1">
             <p class="truncate font-semibold">{a.title}</p>
-            <p class="text-xs text-slateink">{c.name} · {itemLabel(a)}</p>
+            <p class="text-xs text-slateink">{c.name} · {itemLabel(a)}{#if a.status !== 'published'} · <span class="font-semibold text-coral">borrador: publícala para que los estudiantes puedan jugarla</span>{/if}</p>
           </div>
         {:else}
           <p class="flex-1 text-sm text-coral">Actividad eliminada (se quitará al guardar)</p>
@@ -78,7 +78,7 @@
   <div class="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border-2 border-dashed border-ink/15 p-3">
     <select bind:value={toAdd} class="min-w-0 flex-1 rounded-xl border border-ink/15 bg-white px-3 py-2.5 text-sm">
       <option value="">Elige una actividad para agregar…</option>
-      {#each available as a (a.id)}<option value={a.id}>{a.title} · {byType[a.type].name}</option>{/each}
+      {#each available as a (a.id)}<option value={a.id}>{a.title} · {byType[a.type].name}{a.ownerUid !== session.user?.uid && a.ownerName ? ` · ${a.ownerName}` : ''}</option>{/each}
     </select>
     <button class="inline-flex items-center gap-1.5 rounded-xl bg-leaf px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40" disabled={!toAdd} onclick={add}><Plus size={16} /> Agregar parada</button>
   </div>

@@ -3,11 +3,12 @@
   import { db, clearResults } from '../store.svelte.js'
   import { byType, tones, fmtDate } from '../catalog.js'
 
-  let { onbrowse } = $props()
+  let { onbrowse, mode = 'teacher' } = $props()
   let filter = $state('all')
   let confirmClear = $state(false)
 
-  const rows = $derived(filter === 'all' ? db.results : db.results.filter((r) => r.activityId === filter))
+  const all = $derived([...db.results].sort((a, b) => (b.date ?? 0) - (a.date ?? 0)))
+  const rows = $derived(filter === 'all' ? all : all.filter((r) => r.activityId === filter))
   const students = $derived(new Set(rows.map((r) => r.student.trim().toLowerCase())).size)
   const avg = $derived(rows.length ? Math.round(rows.reduce((s, r) => s + r.accuracy, 0) / rows.length) : 0)
   const top = $derived.by(() => {
@@ -35,8 +36,8 @@
 {#if db.results.length === 0}
   <div class="rounded-2xl border border-dashed border-ink/20 bg-white/60 px-6 py-16 text-center">
     <p class="font-display text-xl font-bold">Aún no hay partidas registradas</p>
-    <p class="mt-1 text-sm text-slateink">Juega una actividad y los resultados aparecerán aquí.</p>
-    <button class="mt-6 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-white" onclick={onbrowse}>Ir a Mis actividades</button>
+    <p class="mt-1 text-sm text-slateink">{mode === 'student' ? 'Juega una actividad y tus resultados aparecerán aquí.' : 'Cuando tus estudiantes jueguen tus actividades publicadas, sus resultados aparecerán aquí.'}</p>
+    <button class="mt-6 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-white" onclick={onbrowse}>{mode === 'student' ? 'Ver actividades' : 'Ir a Mis actividades'}</button>
   </div>
 {:else}
   <div class="flex flex-wrap items-center justify-between gap-3">
@@ -49,7 +50,9 @@
         {/each}
       </select>
     </label>
-    {#if confirmClear}
+    {#if mode === 'student'}
+      <span></span>
+    {:else if confirmClear}
       <div class="pop flex items-center gap-2 text-sm">
         <span class="text-coral">¿Borrar todos los resultados?</span>
         <button class="rounded-lg bg-coral px-3 py-1.5 font-semibold text-white" onclick={() => { clearResults(); confirmClear = false }}>Borrar</button>
@@ -91,9 +94,9 @@
       <tbody>
         {#each rows as r (r.id)}
           <tr class="border-b border-ink/6 last:border-0">
-            <td class="px-5 py-3 font-medium">{r.student}</td>
+            <td class="px-5 py-3 font-medium" title={r.studentEmail ?? ''}>{r.student}{#if mode !== 'student' && r.studentEmail && !['board', 'wheel'].includes(r.type)}<span class="block text-xs font-normal text-slateink/70">{r.studentEmail}</span>{/if}</td>
             <td class="px-5 py-3">
-              <span class="mr-1.5 inline-block h-2 w-2 rounded-full {tones[byType[r.type].tone].dot}"></span>{r.activityTitle}
+              <span class="mr-1.5 inline-block h-2 w-2 rounded-full {tones[byType[r.type]?.tone ?? 'ink'].dot}"></span>{r.activityTitle}
             </td>
             <td class="px-5 py-3 text-slateink">{r.detail}</td>
             <td class="px-5 py-3 text-right">

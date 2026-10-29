@@ -1,7 +1,7 @@
 <script>
   import { Plus, Trash2, Check } from '@lucide/svelte'
   import EditorFrame from './EditorFrame.svelte'
-  import { db, saveActivity } from '../store.svelte.js'
+  import { db, saveActivity, allActivities } from '../store.svelte.js'
   import { blanks, examples } from '../samples.js'
   import { byType } from '../catalog.js'
 
@@ -11,7 +11,7 @@
   const isNew = !activity
   let draft = $state(activity ? structuredClone($state.snapshot(activity)) : blanks[type]())
   let importFrom = $state('')
-  const sources = $derived(db.activities.filter((a) => (a.type === 'quiz' || a.type === 'board') && a.id !== draft.id))
+  const sources = $derived(allActivities().filter((a) => (a.type === 'quiz' || a.type === 'board') && a.id !== draft.id))
 
   function importQuestions() {
     const src = sources.find((a) => a.id === importFrom)

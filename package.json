@@ -22,6 +22,7 @@
     "vite-plugin-singlefile": "^2.3.4"
   },
   "dependencies": {
-    "@lucide/svelte": "^1.64.0"
+    "@lucide/svelte": "^1.64.0",
+    "firebase": "^13.1.0"
   }
 }

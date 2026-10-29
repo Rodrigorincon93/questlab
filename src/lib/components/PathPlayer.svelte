@@ -2,7 +2,7 @@
   import { Lock, Star, Gem, Play, RotateCcw } from '@lucide/svelte'
   import PlayerShell from './PlayerShell.svelte'
   import PlayerIntro from './PlayerIntro.svelte'
-  import { db, addResult } from '../store.svelte.js'
+  import { db, addResult, findActivity } from '../store.svelte.js'
   import { byType, tones } from '../catalog.js'
 
   let { activity, onexit, players } = $props()
@@ -13,7 +13,7 @@
   let since = $state(0)
   let rewarded = $state(false)
 
-  const steps = $derived(activity.steps.map((id) => db.activities.find((a) => a.id === id)).filter(Boolean))
+  const steps = $derived(activity.steps.map((id) => findActivity(id)).filter(Boolean))
   const who = $derived(name.trim().toLowerCase())
 
   // Mejor resultado del estudiante en cada parada, desde que empezó esta ruta.
