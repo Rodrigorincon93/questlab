@@ -4,16 +4,21 @@
   import { saveActivity } from '../store.svelte.js'
   import { blanks, examples } from '../samples.js'
 
-  let { activity, onclose, onsaved } = $props()
+  import { byType } from '../catalog.js'
+
+  let { type = 'match', activity, onclose, onsaved } = $props()
+  const cfg = byType[type]
+  const [labelA, labelB] = cfg.labels ?? ['Palabra', 'Su pareja']
+  const maxPairs = cfg.max ?? 10
   const isNew = !activity
-  let draft = $state(activity ? structuredClone($state.snapshot(activity)) : blanks.match())
+  let draft = $state(activity ? structuredClone($state.snapshot(activity)) : blanks[type]())
   let errors = $state([])
 
   function validate() {
     const e = []
     if (!draft.title.trim()) e.push('Ponle un título a la actividad.')
     if (draft.pairs.length < 3) e.push('Agrega al menos 3 parejas.')
-    if (draft.pairs.length > 10) e.push('Usa como máximo 10 parejas para que quepan en pantalla.')
+    if (draft.pairs.length > maxPairs) e.push(`Usa como máximo ${maxPairs} parejas para que quepan en pantalla.`)
     draft.pairs.forEach((p, i) => {
       if (!p.term.trim() || !p.match.trim()) e.push(`La pareja ${i + 1} está incompleta.`)
     })
@@ -35,7 +40,7 @@
   }
 </script>
 
-<EditorFrame kind="Relaciona" tone="teal" {isNew} {errors} {onclose} onsave={save} onexample={() => { draft = examples.match(); errors = [] }}>
+<EditorFrame kind={cfg.name} tone={cfg.tone} {isNew} {errors} {onclose} onsave={save} onexample={() => { draft = examples[type](); errors = [] }}>
   <div class="space-y-4 rounded-2xl border border-ink/10 bg-white p-6">
     <label class="block">
       <span class="text-sm font-semibold">Título</span>
@@ -50,7 +55,7 @@
   <h2 class="mb-3 mt-10 font-display text-xl font-bold">Parejas <span class="text-slateink/60">({draft.pairs.length})</span></h2>
   <div class="rounded-2xl border border-ink/10 bg-white p-3 sm:p-5">
     <div class="hidden grid-cols-[2rem_1fr_1.5rem_1fr_2.75rem] gap-2 px-1 pb-2 text-xs font-semibold uppercase tracking-wider text-slateink sm:grid">
-      <span></span><span>Palabra</span><span></span><span>Su pareja</span><span></span>
+      <span></span><span>{labelA}</span><span></span><span>{labelB}</span><span></span>
     </div>
     <div class="space-y-2">
       {#each draft.pairs as p, i (p)}

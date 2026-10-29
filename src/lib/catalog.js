@@ -1,4 +1,4 @@
-import { Zap, Link2, ArrowDownUp, TextCursorInput, Grid3x3, KeyRound, Layers, Shuffle, Dices } from '@lucide/svelte'
+import { Zap, Link2, ArrowDownUp, TextCursorInput, Grid3x3, KeyRound, Layers, Shuffle, Dices, Headphones, PersonStanding, Brain, Puzzle, FerrisWheel, Ticket, Map as MapIcon } from '@lucide/svelte'
 
 // Clases completas (Tailwind solo genera las que aparecen escritas tal cual).
 export const tones = {
@@ -193,7 +193,7 @@ export const catalog = [
   },
   {
     type: 'board',
-    group: 'adventure',
+    group: 'class',
     name: 'Carrera por equipos',
     desc: 'Juego de tablero para la clase: los equipos lanzan el dado, responden y avanzan. Casillas con bonos, trampas y robo de turno.',
     tone: 'indigo',
@@ -202,12 +202,141 @@ export const catalog = [
     itemsKey: 'questions',
     unit: ['pregunta', 'preguntas'],
   },
+  {
+    type: 'listen',
+    group: 'learn',
+    name: 'Dictado',
+    desc: 'Escucha una palabra o frase en inglés y escríbela. Con velocidad normal y lenta.',
+    tone: 'sky',
+    icon: Headphones,
+    editor: 'items',
+    itemsKey: 'items',
+    unit: ['audio', 'audios'],
+    min: 3,
+    max: 30,
+    fields: [
+      { key: 'text', label: 'Lo que se escucha (inglés)', placeholder: 'My bag is black.', required: true, size: 'lg' },
+      { key: 'translation', label: 'Traducción (se muestra al final)', placeholder: 'Mi mochila es negra.', size: 'lg' },
+    ],
+  },
+  {
+    type: 'memory',
+    group: 'learn',
+    name: 'Memoria',
+    desc: 'Voltea cartas y encuentra las parejas. Escucha la pronunciación al voltear cada palabra.',
+    tone: 'plum',
+    icon: Brain,
+    editor: 'match',
+    itemsKey: 'pairs',
+    unit: ['pareja', 'parejas'],
+    labels: ['Inglés', 'Su pareja'],
+    max: 10,
+  },
+  {
+    type: 'hangman',
+    group: 'challenge',
+    name: 'Ahorcado',
+    desc: 'Adivina la palabra letra por letra antes de completar el dibujo. Con pista en español.',
+    tone: 'rose',
+    icon: PersonStanding,
+    editor: 'items',
+    itemsKey: 'items',
+    unit: ['palabra', 'palabras'],
+    min: 3,
+    max: 30,
+    fields: [
+      { key: 'word', label: 'Palabra o expresión', placeholder: 'strawberry', required: true, size: 'sm' },
+      { key: 'hint', label: 'Pista', placeholder: 'fresa', size: 'sm' },
+    ],
+    validateItem: (it, n) => {
+      const w = it.word.trim()
+      if (w && !/^[a-zA-Z' -]+$/.test(w)) return `La palabra ${n} solo puede tener letras, espacios o guiones (sin tildes).`
+      return null
+    },
+  },
+  {
+    type: 'crossword',
+    group: 'challenge',
+    name: 'Crucigrama',
+    desc: 'Se arma solo a partir de tus palabras y pistas. Con verificación y ayuda letra por letra.',
+    tone: 'teal',
+    icon: Puzzle,
+    editor: 'items',
+    itemsKey: 'items',
+    unit: ['palabra', 'palabras'],
+    min: 4,
+    max: 16,
+    fields: [
+      { key: 'word', label: 'Palabra', placeholder: 'kitchen', required: true, size: 'sm' },
+      { key: 'clue', label: 'Pista', placeholder: 'The room where you cook.', required: true, size: 'lg' },
+    ],
+    validateItem: (it, n) => {
+      const w = it.word.trim()
+      if (w && !/^[a-zA-Z]+$/.test(w)) return `La palabra ${n} solo debe tener letras, sin espacios ni tildes.`
+      if (w && w.length < 3) return `La palabra ${n} debe tener al menos 3 letras.`
+      return null
+    },
+  },
+  {
+    type: 'wheel',
+    group: 'class',
+    name: 'Ruleta de preguntas',
+    desc: 'Gira la ruleta, cae una categoría y sale una pregunta. Ideal para speaking con puntos por equipo.',
+    tone: 'sun',
+    icon: FerrisWheel,
+    editor: 'items',
+    itemsKey: 'items',
+    unit: ['pregunta', 'preguntas'],
+    min: 4,
+    max: 60,
+    settings: [{ key: 'teams', label: 'Equipos (separados por comas; deja vacío para jugar sin puntos)', kind: 'text', placeholder: 'Equipo A, Equipo B' }],
+    fields: [
+      { key: 'category', label: 'Categoría (máx. 8 distintas)', placeholder: 'Family', required: true, size: 'sm' },
+      { key: 'answer', label: 'Respuesta modelo (opcional)', placeholder: 'I have two brothers.', size: 'sm' },
+      { key: 'question', label: 'Pregunta', placeholder: 'Do you have brothers or sisters?', required: true, size: 'lg' },
+    ],
+    validateAll: (items) => {
+      const cats = new Set(items.map((i) => i.category.trim().toLowerCase()).filter(Boolean))
+      if (cats.size < 2) return 'Usa al menos 2 categorías distintas para que la ruleta tenga sentido.'
+      if (cats.size > 8) return 'Usa como máximo 8 categorías distintas.'
+      return null
+    },
+  },
+  {
+    type: 'bingo',
+    group: 'class',
+    name: 'Bingo',
+    desc: 'El docente canta la pista y cada estudiante marca la palabra en su propio cartón, distinto en cada dispositivo.',
+    tone: 'coral',
+    icon: Ticket,
+    editor: 'items',
+    itemsKey: 'items',
+    unit: ['palabra', 'palabras'],
+    min: 16,
+    max: 60,
+    fields: [
+      { key: 'word', label: 'Palabra en el cartón (inglés)', placeholder: 'seventeen', required: true, size: 'sm' },
+      { key: 'clue', label: 'Lo que canta el docente', placeholder: '17', required: true, size: 'sm' },
+    ],
+  },
+  {
+    type: 'path',
+    group: 'adventure',
+    name: 'Mapa de aventura',
+    desc: 'Une varias actividades en una ruta con paradas que se desbloquean y estrellas según el desempeño.',
+    tone: 'leaf',
+    icon: MapIcon,
+    editor: 'path',
+    itemsKey: 'steps',
+    unit: ['parada', 'paradas'],
+  },
 ]
 
 export const groups = [
   { id: 'learn', title: 'Aprender y practicar', desc: 'Para estudiar a su ritmo: lo que se falla se repite hasta dominarlo.' },
   { id: 'challenge', title: 'Retos con puntos', desc: 'Contra reloj, con puntaje y rachas.' },
-  { id: 'adventure', title: 'Juegos elaborados', desc: 'Experiencias más largas para cerrar una unidad o jugar en clase.' },
+  { id: 'class', title: 'Para jugar en clase', desc: 'Pensados para proyectar en la sesión sincrónica y jugar por equipos.' },
+  { id: 'adventure', title: 'Aventuras', desc: 'Experiencias más largas para cerrar una unidad.' },
 ]
 
 export const byType = Object.fromEntries(catalog.map((c) => [c.type, c]))

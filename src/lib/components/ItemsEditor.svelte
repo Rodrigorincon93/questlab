@@ -30,6 +30,8 @@
       const extra = cfg.validateItem?.(it, i + 1)
       if (extra) e.push(extra)
     })
+    const all = cfg.validateAll?.(items)
+    if (all) e.push(all)
     return e
   }
 

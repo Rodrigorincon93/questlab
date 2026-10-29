@@ -7,10 +7,10 @@
   import { shuffle } from '../catalog.js'
   import { speak, canSpeak } from '../speech.js'
 
-  let { activity, onexit } = $props()
+  let { activity, onexit, playerName = '' } = $props()
 
   let phase = $state('intro')
-  let name = $state('')
+  let name = $state(playerName)
   let queue = $state([])
   let chips = $state([])
   let placed = $state([])

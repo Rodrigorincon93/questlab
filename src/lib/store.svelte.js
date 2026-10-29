@@ -32,6 +32,8 @@ function init() {
   }
   data.activities = [...data.activities, ...toAdd]
   data.seeded = [...seeded]
+  data.settings ??= {}
+  data.settings.disabledTypes ??= []
   return data
 }
 
@@ -77,5 +79,22 @@ export function addResult(result) {
 
 export function clearResults() {
   db.results = []
+  persist()
+}
+
+export function isEnabled(type) {
+  return !db.settings.disabledTypes.includes(type)
+}
+
+export function setTypeEnabled(type, on) {
+  const set = new Set(db.settings.disabledTypes)
+  if (on) set.delete(type)
+  else set.add(type)
+  db.settings.disabledTypes = [...set]
+  persist()
+}
+
+export function setAllTypes(on, types) {
+  db.settings.disabledTypes = on ? [] : [...types]
   persist()
 }

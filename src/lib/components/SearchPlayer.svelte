@@ -8,12 +8,12 @@
   import { generate, lineBetween } from '../wordsearch.js'
   import { speak } from '../speech.js'
 
-  let { activity, onexit } = $props()
+  let { activity, onexit, playerName = '' } = $props()
 
   const palette = ['#f0583a', '#2a72d6', '#12806a', '#6c4bd1', '#d0336a', '#e9a522', '#3f8f2f', '#3d4cc9', '#0e8fa3', '#b4561f', '#8a3fb8', '#2f8f6e', '#c2410c', '#1d4ed8', '#be185d']
 
   let phase = $state('intro')
-  let name = $state('')
+  let name = $state(playerName)
   let puzzle = $state(null)
   let found = $state([]) // { word, cells, color }
   let start = $state(null)

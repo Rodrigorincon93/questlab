@@ -4,7 +4,7 @@
   import { untrack } from 'svelte'
   import { addResult } from '../store.svelte.js'
 
-  let { activity, onexit } = $props()
+  let { activity, onexit, playerName = '' } = $props()
 
   const letters = ['A', 'B', 'C', 'D']
   const optionStyles = [
@@ -15,7 +15,7 @@
   ]
 
   let phase = $state('intro') // intro | question | feedback | end
-  let name = $state('')
+  let name = $state(playerName)
   let i = $state(0)
   let picked = $state(null)
   let score = $state(0)

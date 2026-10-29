@@ -6,13 +6,13 @@
   import { addResult } from '../store.svelte.js'
   import { accepted, norm, fmtTime } from '../catalog.js'
 
-  let { activity, onexit } = $props()
+  let { activity, onexit, playerName = '' } = $props()
 
   const WRONG_PENALTY = 20
   const HINT_PENALTY = 30
 
   let phase = $state('intro') // intro | story | level | digit | code | won | lost
-  let name = $state('')
+  let name = $state(playerName)
   let level = $state(0)
   let digits = $state([])
   let value = $state('')

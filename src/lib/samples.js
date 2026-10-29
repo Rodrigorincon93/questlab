@@ -17,6 +17,13 @@ export const blanks = {
   fill: () => ({ type: 'fill', title: '', description: '', items: [{ sentence: '', answer: '', alternatives: '', hint: '' }] }),
   search: () => ({ type: 'search', title: '', description: '', difficulty: 'facil', words: [{ word: '' }] }),
   escape: () => ({ type: 'escape', title: '', description: '', story: '', minutes: 10, levels: [{ clue: '', question: '', answer: '', alternatives: '', hint: '' }] }),
+  listen: () => ({ type: 'listen', title: '', description: '', items: [{ text: '', translation: '' }] }),
+  hangman: () => ({ type: 'hangman', title: '', description: '', items: [{ word: '', hint: '' }] }),
+  memory: () => ({ type: 'memory', title: '', description: '', pairs: [{ term: '', match: '' }, { term: '', match: '' }, { term: '', match: '' }] }),
+  crossword: () => ({ type: 'crossword', title: '', description: '', items: [{ word: '', clue: '' }] }),
+  wheel: () => ({ type: 'wheel', title: '', description: '', teams: 'Equipo A, Equipo B', items: [{ category: '', question: '', answer: '' }] }),
+  bingo: () => ({ type: 'bingo', title: '', description: '', items: [{ word: '', clue: '' }] }),
+  path: () => ({ type: 'path', title: '', description: '', steps: [] }),
 }
 
 const quizQuestions = [
@@ -142,6 +149,96 @@ export const examples = {
       { clue: 'La última puerta pregunta dónde estás.', question: 'How do you say "biblioteca" in English?', answer: 'library', alternatives: '', hint: 'No es «bookstore».' },
     ],
   }),
+  listen: () => ({
+    type: 'listen',
+    title: 'Numbers and colors',
+    description: 'Escucha y escribe lo que oyes (dictado).',
+    items: [
+      { text: 'seventeen', translation: 'diecisiete' },
+      { text: 'purple', translation: 'morado' },
+      { text: 'My bag is black.', translation: 'Mi mochila es negra.' },
+      { text: 'I am twenty years old.', translation: 'Tengo veinte años.' },
+      { text: 'thirteen', translation: 'trece' },
+      { text: 'The car is red.', translation: 'El carro es rojo.' },
+    ],
+  }),
+  hangman: () => ({
+    type: 'hangman',
+    title: 'Fruits',
+    description: 'Adivina las frutas letra por letra.',
+    items: [
+      { word: 'banana', hint: 'plátano' },
+      { word: 'strawberry', hint: 'fresa' },
+      { word: 'watermelon', hint: 'sandía' },
+      { word: 'pineapple', hint: 'piña' },
+      { word: 'grapes', hint: 'uvas' },
+      { word: 'orange', hint: 'naranja' },
+    ],
+  }),
+  memory: () => ({
+    type: 'memory',
+    title: 'The weather',
+    description: 'Encuentra las parejas inglés–español.',
+    pairs: [
+      { term: 'sunny', match: 'soleado' },
+      { term: 'rainy', match: 'lluvioso' },
+      { term: 'cloudy', match: 'nublado' },
+      { term: 'windy', match: 'ventoso' },
+      { term: 'hot', match: 'caluroso' },
+      { term: 'cold', match: 'frío' },
+    ],
+  }),
+  crossword: () => ({
+    type: 'crossword',
+    title: 'My house',
+    description: 'Partes y objetos de la casa.',
+    items: [
+      { word: 'kitchen', clue: 'The room where you cook.' },
+      { word: 'bedroom', clue: 'The room where you sleep.' },
+      { word: 'bathroom', clue: 'You take a shower here.' },
+      { word: 'garden', clue: 'Flowers and plants grow here, outside the house.' },
+      { word: 'window', clue: 'You open it to see outside.' },
+      { word: 'door', clue: 'You open it to enter a room.' },
+      { word: 'table', clue: 'You eat on it.' },
+      { word: 'sofa', clue: 'You sit on it in the living room.' },
+    ],
+  }),
+  wheel: () => ({
+    type: 'wheel',
+    title: 'Speaking time',
+    description: 'Ruleta de preguntas para practicar la expresión oral en clase.',
+    teams: 'Equipo A, Equipo B',
+    items: [
+      { category: 'About you', question: 'What is your name? How do you spell it?', answer: '' },
+      { category: 'About you', question: 'How old are you?', answer: 'I am … years old.' },
+      { category: 'About you', question: 'Where do you live?', answer: 'I live in …' },
+      { category: 'Family', question: 'Do you have brothers or sisters?', answer: 'Yes, I have… / No, I don’t.' },
+      { category: 'Family', question: 'Describe a person in your family.', answer: '' },
+      { category: 'Food', question: 'What is your favorite food?', answer: 'My favorite food is …' },
+      { category: 'Food', question: 'Do you like pizza? Why?', answer: '' },
+      { category: 'Routine', question: 'What time do you get up?', answer: 'I get up at …' },
+      { category: 'Routine', question: 'What do you do on Sundays?', answer: '' },
+      { category: 'Describe', question: 'Describe your classroom in two sentences.', answer: 'There is / There are …' },
+      { category: 'Describe', question: 'Describe your best friend.', answer: 'He/She is …' },
+    ],
+  }),
+  bingo: () => ({
+    type: 'bingo',
+    title: 'Numbers bingo',
+    description: 'El docente muestra el número y los estudiantes marcan la palabra en inglés.',
+    items: [
+      ['eleven', '11'], ['twelve', '12'], ['thirteen', '13'], ['fourteen', '14'], ['fifteen', '15'], ['sixteen', '16'],
+      ['seventeen', '17'], ['eighteen', '18'], ['nineteen', '19'], ['twenty', '20'], ['twenty-one', '21'], ['twenty-two', '22'],
+      ['twenty-five', '25'], ['twenty-eight', '28'], ['thirty', '30'], ['thirty-three', '33'], ['forty', '40'], ['forty-four', '44'],
+      ['fifty', '50'], ['sixty', '60'], ['seventy', '70'], ['eighty', '80'], ['ninety', '90'], ['one hundred', '100'],
+    ].map(([word, clue]) => ({ word, clue })),
+  }),
+  path: () => ({
+    type: 'path',
+    title: 'Unit 1 adventure',
+    description: 'Ruta de la unidad: completa cada parada para desbloquear la siguiente.',
+    steps: ['sample-flash', 'sample-letters', 'sample-order', 'sample-quiz', 'sample-escape'],
+  }),
 }
 
 // Actividades de muestra. Cada una tiene un id fijo para poder sembrarlas
@@ -156,6 +253,13 @@ export const sampleIds = {
   search: 'sample-search',
   escape: 'sample-escape',
   board: 'sample-board',
+  listen: 'sample-listen',
+  hangman: 'sample-hangman',
+  memory: 'sample-memory',
+  crossword: 'sample-crossword',
+  wheel: 'sample-wheel',
+  bingo: 'sample-bingo',
+  path: 'sample-path',
 }
 
 export function sampleActivity(type) {

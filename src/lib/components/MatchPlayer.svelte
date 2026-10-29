@@ -4,12 +4,12 @@
   import { addResult } from '../store.svelte.js'
   import { shuffle } from '../catalog.js'
 
-  let { activity, onexit } = $props()
+  let { activity, onexit, playerName = '' } = $props()
 
   const pairs = $derived(activity.pairs.map((p, id) => ({ ...p, id })))
 
   let phase = $state('intro') // intro | play | roundEnd | end
-  let name = $state('')
+  let name = $state(playerName)
   let round = $state(1)
   let left = $state([])
   let right = $state([])

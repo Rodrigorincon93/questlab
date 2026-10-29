@@ -15,6 +15,16 @@
   import SearchPlayer from './lib/components/SearchPlayer.svelte'
   import EscapePlayer from './lib/components/EscapePlayer.svelte'
   import BoardPlayer from './lib/components/BoardPlayer.svelte'
+  import ListenPlayer from './lib/components/ListenPlayer.svelte'
+  import HangmanPlayer from './lib/components/HangmanPlayer.svelte'
+  import MemoryPlayer from './lib/components/MemoryPlayer.svelte'
+  import CrosswordPlayer from './lib/components/CrosswordPlayer.svelte'
+  import WheelPlayer from './lib/components/WheelPlayer.svelte'
+  import BingoPlayer from './lib/components/BingoPlayer.svelte'
+  import PathPlayer from './lib/components/PathPlayer.svelte'
+  import PathEditor from './lib/components/PathEditor.svelte'
+  import TypesPanel from './lib/components/TypesPanel.svelte'
+  import { SlidersHorizontal } from '@lucide/svelte'
   import { db } from './lib/store.svelte.js'
   import { byType } from './lib/catalog.js'
 
@@ -28,8 +38,16 @@
     search: SearchPlayer,
     escape: EscapePlayer,
     board: BoardPlayer,
+    listen: ListenPlayer,
+    hangman: HangmanPlayer,
+    memory: MemoryPlayer,
+    crossword: CrosswordPlayer,
+    wheel: WheelPlayer,
+    bingo: BingoPlayer,
+    path: PathPlayer,
   }
-  const editors = { quiz: QuizEditor, match: MatchEditor, items: ItemsEditor }
+  const editors = { quiz: QuizEditor, match: MatchEditor, items: ItemsEditor, path: PathEditor }
+  let managing = $state(false)
 
   const views = [
     { id: 'crear', label: 'Crear actividad' },
@@ -88,7 +106,7 @@
 {#if playing}
   {@const Player = players[playing.type]}
   {#key playing}
-    <Player activity={playing} onexit={onExitPlayer} />
+    <Player activity={playing} onexit={onExitPlayer} {players} />
   {/key}
 {:else if editing}
   {@const Editor = editors[byType[editing.type].editor]}
@@ -103,7 +121,8 @@
         Crea retos de inglés en minutos, juégalos con tu clase y revisa quién domina cada tema.
       </p>
 
-      <nav class="mt-8 flex gap-1 overflow-x-auto border-b border-ink/10" aria-label="Secciones">
+      <div class="mt-8 flex items-end gap-2 border-b border-ink/10">
+      <nav class="flex flex-1 gap-1 overflow-x-auto" aria-label="Secciones">
         {#each views as v (v.id)}
           <button
             class="relative whitespace-nowrap px-4 py-3 text-sm font-semibold transition-colors {view === v.id
@@ -122,15 +141,20 @@
           </button>
         {/each}
       </nav>
+        <button class="mb-1.5 inline-flex shrink-0 items-center gap-2 rounded-xl border border-ink/12 bg-white px-3 py-2 text-sm font-semibold hover:border-ink/30" onclick={() => (managing = true)} title="Activar o desactivar tipos de actividad">
+          <SlidersHorizontal size={16} /> <span class="hidden sm:inline">Tipos de actividad</span>
+        </button>
+      </div>
 
       <section class="pt-8">
         {#if view === 'crear'}
-          <CreateTab oncreate={(type) => (editing = { type, activity: null })} />
+          <CreateTab oncreate={(type) => (editing = { type, activity: null })} onmanage={() => (managing = true)} />
         {:else if view === 'actividades'}
           <ActivitiesTab
             onplay={(a) => (playing = a)}
             onedit={(a) => (editing = { type: a.type, activity: a })}
             oncreate={() => go('crear')}
+            onmanage={() => (managing = true)}
           />
         {:else}
           <ProgressTab onbrowse={() => go('actividades')} />
@@ -141,6 +165,10 @@
       Prototipo · los datos se guardan solo en este navegador
     </footer>
   </div>
+{/if}
+
+{#if managing && !playing && !editing}
+  <TypesPanel onclose={() => (managing = false)} />
 {/if}
 
 {#if toast}
